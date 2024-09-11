@@ -4,7 +4,20 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import {
+  Chart as FinancialChart,
+  ChartCanvas,
   Chart,
+  CandlestickSeries,
+  XAxis,
+  YAxis,
+  CrossHairCursor,
+  MouseCoordinateX,
+  MouseCoordinateY,
+  discontinuousTimeScaleProviderBuilder,
+} from 'react-financial-charts';
+
+import {
+  Chart as ChartJS,
   ChartData,
   ChartOptions,
   CategoryScale,
@@ -19,7 +32,7 @@ import {
 } from 'chart.js';
 
 // Register chart components for Chart.js
-Chart.register(
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
@@ -33,7 +46,7 @@ Chart.register(
 
 // Define types for the data structures
 interface CandlestickData {
-  x: string;
+  date: Date;
   open: number;
   high: number;
   low: number;
@@ -54,6 +67,8 @@ interface PieChartData {
   labels: string[];
   data: number[];
 }
+
+
 
 const Dashboard: React.FC = () => {
   const [candlestickData, setCandlestickData] = useState<CandlestickData[]>([]);
@@ -97,8 +112,15 @@ const Dashboard: React.FC = () => {
     axios
       .get('http://localhost:8000/api/candlestick-data/')
       .then((res) => {
-        console.log('Candlestick Data:', res.data.data); // Check data structure
-        setCandlestickData(res.data.data);
+        // Format data for react-financial-charts
+        const formattedData = res.data.data.map((d: any) => ({
+          date: new Date(d.x),
+          open: d.open,
+          high: d.high,
+          low: d.low,
+          close: d.close,
+        }));
+        setCandlestickData(formattedData);
       })
       .catch((err) => console.error('Error fetching candlestick data:', err));
 
@@ -152,9 +174,14 @@ const Dashboard: React.FC = () => {
       .catch((err) => console.error(err));
   }, []);
 
+
+
+  const { data, xScale, xAccessor, displayXAccessor } = discontinuousTimeScaleProviderBuilder()
+  .inputDateAccessor((d: CandlestickData) => d.date)(candlestickData);
+  
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h1 style={{ textAlign: 'center' }} >Dashboard</h1>
 
       {/* Line Chart */}
       <div>
@@ -176,9 +203,28 @@ const Dashboard: React.FC = () => {
 
       {/* Candlestick Chart (Placeholder for now) */}
       <div>
-        <h2>Candlestick Chart</h2>
-        {/* You can integrate any library for Candlestick chart here */}
-        <pre>{JSON.stringify(candlestickData, null, 2)}</pre>
+      <h2>Candlestick Chart</h2>
+        <ChartCanvas
+          height={400}
+          width={600}
+          ratio={1}
+          margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
+          seriesName="Candlestick"
+          data={data}
+          xScale={xScale}
+          xAccessor={xAccessor}
+          displayXAccessor={displayXAccessor}
+        >
+          <Chart id={1} yExtents={(d: CandlestickData) => [d.high, d.low]}>
+            <XAxis />
+            <YAxis />
+            <CandlestickSeries />
+            <MouseCoordinateX displayFormat={(date: Date) => date.toLocaleDateString()} />
+            <MouseCoordinateY displayFormat={(price: number) => price.toFixed(2)} />
+          </Chart>
+          <CrossHairCursor />
+        </ChartCanvas>
+
       </div>
     </div>
   );

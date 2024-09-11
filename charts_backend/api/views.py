@@ -3,6 +3,12 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 
+from django.shortcuts import redirect
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to the API. Use /api/ to access endpoints.")
+
 @api_view(['GET'])
 def candlestick_data(request):
     data = {
