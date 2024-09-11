@@ -195,12 +195,10 @@ The Django backend exposes several REST API endpoints that provide chart data:
 The project is split into two parts: Django for the backend and Next.js for the frontend. This separation of concerns ensures that the backend handles data storage and retrieval, while the frontend focuses on the user interface and rendering charts.
    - **React-Financial-Charts** was chosen for the candlestick chart due to its specialized financial charting capabilities.
    - **React-ChartJS-2** was used for the line, bar, and pie charts due to its simplicity and integration with Chart.js, a powerful charting library.
-   
+
 ---
 
 ## Future Improvements
 
 1. **Authentication**: Add user authentication to restrict access to the data.
-2. **Data Validation**: Implement input validation and error handling in the API.
-3. **Additional Charts**: Expand the chart offerings by adding more types, such as scatter plots or radar charts.
-4. **Styling**: Improve the visual appearance of the dashboard with custom styling and a better user experience.
+2. **Styling**: Improve the visual appearance of the dashboard with custom styling and a better user experience.
